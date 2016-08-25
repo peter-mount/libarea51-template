@@ -1,4 +1,4 @@
-MODULE = area51-rest
+MODULE = area51-template
 
 OBJS =	template/free.o \
 	template/get.o \
