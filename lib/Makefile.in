@@ -1,0 +1,13 @@
+MODULE = area51-rest
+
+OBJS =	template/free.o \
+	template/get.o \
+	template/handler.o \
+	template/init.o \
+	template/load.o \
+	template/lock.o \
+	template/new.o \
+	template/permanent.o \
+	template/charbuffer/append.o
+
+include ../SubMakefile
