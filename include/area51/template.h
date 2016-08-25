@@ -16,30 +16,27 @@
 
 #include <area51/charbuffer.h>
 #include <area51/webserver.h>
-#include <microhttpd.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    /*
-     * Handle on a template file
-     */
+    typedef struct TemplateEngine TemplateEngine;
     typedef struct TemplateFile TemplateFile;
 
-    extern int template_init(char *);
+    extern TemplateEngine *template_init(char *);
 
-    extern void template_clearPermanent(TemplateFile *);
-    extern void template_setPermanent(TemplateFile *);
-    extern int template_loadPermanent(char *);
+    extern void template_clearPermanent(TemplateEngine *, TemplateFile *);
+    extern void template_setPermanent(TemplateEngine *, TemplateFile *);
+    extern int template_loadPermanent(TemplateEngine *, char *);
 
-    TemplateFile *template_new(void *, size_t , void (*)(void *));
-    extern TemplateFile *template_get(char *);
-    extern void template_free(TemplateFile *);
+    TemplateFile *template_new(void *, size_t, void (*)(void *));
+    extern TemplateFile *template_get(TemplateEngine *, char *);
+    extern void template_free(TemplateEngine *, TemplateFile *);
 
     extern int template_appendCharbuffer(CharBuffer *, TemplateFile *);
 
-    extern int templateHandler(struct MHD_Connection *, WEBSERVER_HANDLER *handler, const char *);
+    extern WEBSERVER_HANDLER *template_addHandler(WEBSERVER *, TemplateEngine *);
 
 #ifdef __cplusplus
 }

@@ -26,27 +26,29 @@
  * have finished with it but will remain in memory for reuse later
  * @param f
  */
-void template_setPermanent(TemplateFile *f) {
+void template_setPermanent(TemplateEngine *e, TemplateFile *f) {
     if (!f)
         return;
 
-    template_lock();
+    template_lock(e);
     f->permanent = true;
-    template_unlock();
+    template_unlock(e);
 }
 
 /**
  * Mark a TemplateFile as transient (default). Once transient then once all users
  * have finished with it then the instance will be freed.
  * @param f
+ * 
+ *
  */
-void template_clearPermanent(TemplateFile *f) {
+void template_clearPermanent(TemplateEngine *e, TemplateFile *f) {
     if (!f)
         return;
 
-    template_lock();
+    template_lock(e);
     f->permanent = false;
-    template_unlock();
+    template_unlock(e);
 }
 
 /**
@@ -56,13 +58,13 @@ void template_clearPermanent(TemplateFile *f) {
  * @param n
  * @return EXIT_SUCCESS when loaded
  */
-int template_loadPermanent(char *n) {
+int template_loadPermanent(TemplateEngine *e, char *n) {
     int r = EXIT_FAILURE;
 
     if (n && n[0]) {
-        template_lock();
+        template_lock(e);
 
-        if (!template_load_internal(n)) {
+        if (!template_load_internal(e, n)) {
             TemplateFile *f = hashmapGet(template_hashmap, n);
             if (f) {
                 f->permanent = true;
@@ -70,7 +72,7 @@ int template_loadPermanent(char *n) {
             }
         }
 
-        template_unlock();
+        template_unlock(e);
     }
     return r;
 }

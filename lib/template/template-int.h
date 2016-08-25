@@ -15,11 +15,22 @@
 #define TEMPLATE_INT_H
 
 #include <stdbool.h>
+#include <pthread.h>
+#include <area51/hashmap.h>
 #include <area51/template.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+    struct TemplateEngine {
+        // Hashmap containing our templates
+        Hashmap *templates;
+        // Base directory for disk based templates
+        char *baseDir;
+        // Mutex for thread safety
+        pthread_mutex_t mutex;
+    };
 
     struct TemplateFile {
         // Key in template engine, null means it's not reusable
@@ -48,11 +59,11 @@ extern "C" {
     extern Hashmap *template_hashmap;
     extern char *template_baseDir;
 
-    extern void template_free_internal(TemplateFile *);
-    extern int template_load_internal(char *);
+    extern void template_free_internal(TemplateEngine *, TemplateFile *);
+    extern int template_load_internal(TemplateEngine *, char *);
 
-    extern int template_lock();
-    extern int template_unlock();
+    extern int template_lock(TemplateEngine *);
+    extern int template_unlock(TemplateEngine *);
 
 #ifdef __cplusplus
 }

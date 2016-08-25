@@ -23,12 +23,12 @@
 
 extern Hashmap *template_hashmap;
 
-void template_free_internal(TemplateFile *f) {
+void template_free_internal(TemplateEngine *e, TemplateFile *f) {
     if (!f)
         return;
 
     if (f->key) {
-        hashmapRemove(template_hashmap, f->key);
+        hashmapRemove(e->templates, f->key);
         if (f->freeKey)
             f->freeKey(f->key);
     }
@@ -46,11 +46,11 @@ void template_free_internal(TemplateFile *f) {
     free(f);
 }
 
-void template_free(TemplateFile *f) {
+void template_free(TemplateEngine *e, TemplateFile *f) {
     if (!f)
         return;
 
-    template_lock();
+    template_lock(e);
 
     f->useCount--;
 
@@ -59,8 +59,8 @@ void template_free(TemplateFile *f) {
         if (verbose)
             logconsole("Free template %s", f->key);
 
-        template_free_internal(f);
+        template_free_internal(e, f);
     }
 
-    template_unlock();
+    template_unlock(e);
 }

@@ -9,20 +9,20 @@
 
 #include "template-int.h"
 
-TemplateFile *template_get(char *name) {
-    template_lock();
+TemplateFile *template_get(TemplateEngine *e, char *name) {
+    template_lock(e);
 
-    if (!hashmapContainsKey(template_hashmap, name))
-        if (template_load_internal(name)) {
-            template_unlock();
+    if (!hashmapContainsKey(e->templates, name))
+        if (template_load_internal(e, name)) {
+            template_unlock(e);
             return NULL;
         }
 
-    TemplateFile *f = hashmapGet(template_hashmap, name);
+    TemplateFile *f = hashmapGet(e->templates, name);
 
     if (f && !f->permanent)
         f->useCount++;
 
-    template_unlock();
+    template_unlock(e);
     return f;
 }

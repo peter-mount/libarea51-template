@@ -9,25 +9,26 @@
 
 #include "template-int.h"
 
-Hashmap *template_hashmap = NULL;
+TemplateEngine *template_init(char *base) {
+    TemplateEngine *e = malloc(sizeof (struct TemplateEngine));
+    if (!e)
+        return NULL;
 
-char *template_baseDir;
-
-extern pthread_mutex_t template_mutex;
-
-int template_init(char *base) {
-    template_baseDir = base;
+    memset(e, 0, sizeof (struct TemplateEngine));
+    e->baseDir = base;
 
     if (verbose)
-        logconsole("template base %s", template_baseDir);
+        logconsole("template base %s", e->baseDir);
 
-    pthread_mutex_init(&template_mutex, NULL);
+    pthread_mutex_init(&e->mutex, NULL);
 
-    template_hashmap = hashmapCreate(100, hashmapStringHash, hashmapStringEquals);
+    e->templates = hashmapCreate(100, hashmapStringHash, hashmapStringEquals);
 
-    if (!template_hashmap)
-        return EXIT_FAILURE;
+    if (!e->templates) {
+        free(e);
+        return NULL;
+    }
 
-    return EXIT_SUCCESS;
+    return e;
 
 }

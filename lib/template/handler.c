@@ -16,6 +16,11 @@
 // Don't allow any file begining with . to prevent people trying to scan filesystem
 static const char *INVALID = "/.";
 
+struct ctx {
+    TemplateEngine *e;
+    TemplateFile *f;
+};
+
 /**
  * Callback from microhttpd to read a block from the file
  * 
@@ -26,11 +31,11 @@ static const char *INVALID = "/.";
  * @return The number of bytes read into buf
  */
 static ssize_t file_reader(void *cls, uint64_t pos, char *buf, size_t max) {
-    TemplateFile *file = cls;
+    struct ctx *ctx = cls;
 
-    size_t size = file->size - pos;
+    size_t size = ctx->f->size - pos;
     if (size > 0) {
-        memcpy(buf, file->buffer + pos, size);
+        memcpy(buf, ctx->f->buffer + pos, size);
         return size;
     }
 
@@ -43,8 +48,10 @@ static ssize_t file_reader(void *cls, uint64_t pos, char *buf, size_t max) {
  * @param cls FILE to close
  */
 static void free_callback(void *cls) {
-    TemplateFile *file = cls;
-    template_free(file);
+    struct ctx *ctx = cls;
+    if (ctx->f)
+        template_free(ctx->e, ctx->f);
+    free(ctx);
 }
 
 /**
@@ -54,8 +61,9 @@ static void free_callback(void *cls) {
  * @param connection
  * @return 
  */
-int templateHandler(struct MHD_Connection * connection, WEBSERVER_HANDLER *handler, const char *url) {
+static int handler(WEBSERVER_REQUEST *request) {
 
+    const char *url = webserver_getRequestUrl(request);
     // Validate url - i.e. must start with /
     if (url[0] != '/')
         return MHD_NO;
@@ -66,19 +74,30 @@ int templateHandler(struct MHD_Connection * connection, WEBSERVER_HANDLER *handl
     if (p)
         return MHD_NO;
 
-    TemplateFile *file = template_get((char *) url);
-    if (!file)
+    struct ctx *ctx = malloc(sizeof (struct ctx));
+    if (!ctx)
         return MHD_NO;
 
-    // Hand the file to microhttpd to stream back to the client
-    struct MHD_Response *response = MHD_create_response_from_callback(file->size, STATIC_PAGE_SIZE, &file_reader, file, &free_callback);
-    if (response == NULL) {
-        free_callback(file);
+    ctx->e = webserver_getUserData(request);
+    ctx->f = template_get(ctx->e, (char *) url);
+    if (!ctx->f) {
+        free_callback(ctx);
         return MHD_NO;
     }
 
-    int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+    // Hand the file to microhttpd to stream back to the client
+    struct MHD_Response *response = MHD_create_response_from_callback(ctx->f->size, STATIC_PAGE_SIZE, &file_reader, ctx, &free_callback);
+    if (response == NULL) {
+        free_callback(ctx);
+        return MHD_NO;
+    }
+
+    int ret = MHD_queue_response(webserver_getRequestConnection(request), MHD_HTTP_OK, response);
     MHD_destroy_response(response);
 
     return ret;
+}
+
+WEBSERVER_HANDLER *template_addHandler(WEBSERVER *webserver, TemplateEngine *e) {
+    return webserver_add_handler(webserver, "/*", handler, e);
 }

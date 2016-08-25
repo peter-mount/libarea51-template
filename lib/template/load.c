@@ -21,7 +21,7 @@
 
 #include "template-int.h"
 
-int template_load_internal(char *name) {
+int template_load_internal(TemplateEngine *e, char *name) {
     if (verbose)
         logconsole("Load template %s", name);
 
@@ -34,13 +34,13 @@ int template_load_internal(char *name) {
 
     f->key = strdup(name);
     if (!f->key) {
-        template_free_internal(f);
+        template_free_internal(e, f);
         return EXIT_FAILURE;
     }
 
     char *n = genurl(template_baseDir, name);
     if (!n) {
-        template_free_internal(f);
+        template_free_internal(e, f);
         return EXIT_FAILURE;
     }
 
@@ -48,23 +48,23 @@ int template_load_internal(char *name) {
     free(n);
 
     if (f->fd == -1) {
-        template_free_internal(f);
+        template_free_internal(e, f);
         return EXIT_FAILURE;
     }
 
     struct stat sb;
     if (fstat(f->fd, &sb) == -1) {
-        template_free_internal(f);
+        template_free_internal(e, f);
         return EXIT_FAILURE;
     }
 
     f->size = sb.st_size;
     f->buffer = mmap(NULL, f->size, PROT_READ, MAP_PRIVATE, f->fd, 0);
     if (f->buffer == MAP_FAILED) {
-        template_free_internal(f);
+        template_free_internal(e, f);
         return EXIT_FAILURE;
     }
 
-    hashmapPut(template_hashmap, name, f);
+    hashmapPut(e->templates, name, f);
     return EXIT_SUCCESS;
 }
