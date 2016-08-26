@@ -9,7 +9,7 @@ TemplateFile *template_new(void *p, size_t size, void (*f)(void *)) {
     if (!t)
         return NULL;
 
-    memset(f, 0, sizeof (struct TemplateFile));
+    memset(t, 0, sizeof (struct TemplateFile));
     t->fd = -1;
 
     t->buffer = p;

@@ -38,7 +38,7 @@ void template_render_template(TemplateRenderer *r, TemplateFile *f) {
     }
 
     if (o > -1)
-        charbuffer_put(r->buffer, &((char *) f->buffer)[o], f->size - o - 1);
+        charbuffer_put(r->buffer, &((char *) f->buffer)[o], f->size - o);
 }
 
 CharBuffer * template_render(WEBSERVER_REQUEST *r, TemplateFile *(*lookup)(char *, void *), void *ctx, TemplateFile * f) {
