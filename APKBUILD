@@ -2,7 +2,7 @@
 
 pkgname="libarea51-template"
 pkgver="0.1"
-pkgrel="8"
+pkgrel="11"
 pkgdesc="Area51 HTTP Template Engine"
 arch="x86_64"
 url="https://area51.onl/"

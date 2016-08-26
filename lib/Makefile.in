@@ -8,6 +8,9 @@ OBJS =	template/free.o \
 	template/lock.o \
 	template/new.o \
 	template/permanent.o \
-	template/charbuffer/append.o
+	template/charbuffer/append.o \
+	template/renderer/renderer.o \
+	template/renderer/scan.o \
+	template/renderer/tagHandler.o
 
 include ../SubMakefile

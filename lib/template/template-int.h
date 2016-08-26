@@ -16,6 +16,7 @@
 
 #include <stdbool.h>
 #include <pthread.h>
+#include <area51/charbuffer.h>
 #include <area51/hashmap.h>
 #include <area51/template.h>
 
@@ -54,6 +55,15 @@ extern "C" {
         unsigned int template : 1;
         // Set when the template is mmap'd
         unsigned int memmapped : 1;
+        // Set when the template is a charbuffer
+        unsigned int charbuffer : 1;
+    };
+
+    struct TemplateRenderer {
+        CharBuffer *buffer;
+        WEBSERVER_REQUEST *request;
+        TemplateFile *(*lookup)(char *, void *);
+        void *ctx;
     };
 
     extern int verbose;
@@ -63,6 +73,12 @@ extern "C" {
 
     extern int template_lock(TemplateEngine *);
     extern int template_unlock(TemplateEngine *);
+
+    // Template renderer internals
+    extern int renderer_findStart(TemplateFile *, int);
+    extern int renderer_findEnd(TemplateFile *, int);
+    extern void renderer_handleTag(TemplateRenderer *, char *);
+    extern void template_render_template(TemplateRenderer *, TemplateFile *);
 
 #ifdef __cplusplus
 }

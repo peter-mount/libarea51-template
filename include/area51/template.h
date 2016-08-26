@@ -23,6 +23,7 @@ extern "C" {
 
     typedef struct TemplateEngine TemplateEngine;
     typedef struct TemplateFile TemplateFile;
+    typedef struct TemplateRenderer TemplateRenderer;
 
     extern TemplateEngine *template_init(char *);
 
@@ -39,6 +40,8 @@ extern "C" {
     extern WEBSERVER_HANDLER *template_addHandler(WEBSERVER *, TemplateEngine *);
     extern WEBSERVER_HANDLER *template_addHandler_r(WEBSERVER *, char *, TemplateEngine *);
     extern int template_respondTemplate(WEBSERVER_REQUEST *, TemplateFile *);
+
+    extern CharBuffer * template_render(WEBSERVER_REQUEST *, TemplateFile *(*)(char *, void *), void *, TemplateFile *);
 
 #ifdef __cplusplus
 }
