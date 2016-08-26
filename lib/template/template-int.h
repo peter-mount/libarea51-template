@@ -33,6 +33,8 @@ extern "C" {
     };
 
     struct TemplateFile {
+        // TemplateEngine this template belongs to
+        TemplateEngine *owner;
         // Key in template engine, null means it's not reusable
         char *key;
         void (*freeKey)(void *);
@@ -56,10 +58,7 @@ extern "C" {
 
     extern int verbose;
 
-    extern Hashmap *template_hashmap;
-    extern char *template_baseDir;
-
-    extern void template_free_internal(TemplateEngine *, TemplateFile *);
+    extern void template_free_internal(TemplateFile *);
     extern int template_load_internal(TemplateEngine *, char *);
 
     extern int template_lock(TemplateEngine *);

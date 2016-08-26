@@ -6,11 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <area51/charbuffer.h>
 #include <area51/hashmap.h>
-#include <area51/log.h>
-#include <area51/string.h>
-#include <area51/comparator.h>
 #include <area51/template.h>
 
 #include <fcntl.h>
@@ -21,16 +17,18 @@
 
 #include "template-int.h"
 
-extern Hashmap *template_hashmap;
-
-void template_free_internal(TemplateEngine *e, TemplateFile *f) {
+void template_free_internal(TemplateFile *f) {
     if (!f)
         return;
 
     if (f->key) {
-        hashmapRemove(e->templates, f->key);
+
+        if (f->owner)
+            hashmapRemove(f->owner->templates, f->key);
+
         if (f->freeKey)
             f->freeKey(f->key);
+
     }
 
     if (f->buffer) {
@@ -46,21 +44,17 @@ void template_free_internal(TemplateEngine *e, TemplateFile *f) {
     free(f);
 }
 
-void template_free(TemplateEngine *e, TemplateFile *f) {
+void template_free(TemplateFile *f) {
     if (!f)
         return;
 
+    TemplateEngine *e = f->owner;
     template_lock(e);
 
     f->useCount--;
 
-    if (!f->permanent && f->useCount < 1) {
-
-        if (verbose)
-            logconsole("Free template %s", f->key);
-
-        template_free_internal(e, f);
-    }
+    if (!f->permanent && f->useCount < 1)
+        template_free_internal(f);
 
     template_unlock(e);
 }

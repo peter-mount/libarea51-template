@@ -26,13 +26,13 @@
  * have finished with it but will remain in memory for reuse later
  * @param f
  */
-void template_setPermanent(TemplateEngine *e, TemplateFile *f) {
+void template_setPermanent(TemplateFile *f) {
     if (!f)
         return;
 
-    template_lock(e);
+    template_lock(f->owner);
     f->permanent = true;
-    template_unlock(e);
+    template_unlock(f->owner);
 }
 
 /**
@@ -42,13 +42,13 @@ void template_setPermanent(TemplateEngine *e, TemplateFile *f) {
  * 
  *
  */
-void template_clearPermanent(TemplateEngine *e, TemplateFile *f) {
+void template_clearPermanent(TemplateFile *f) {
     if (!f)
         return;
 
-    template_lock(e);
+    template_lock(f->owner);
     f->permanent = false;
-    template_unlock(e);
+    template_unlock(f->owner);
 }
 
 /**
@@ -64,12 +64,10 @@ int template_loadPermanent(TemplateEngine *e, char *n) {
     if (n && n[0]) {
         template_lock(e);
 
-        if (!template_load_internal(e, n)) {
-            TemplateFile *f = hashmapGet(template_hashmap, n);
-            if (f) {
-                f->permanent = true;
-                r = EXIT_SUCCESS;
-            }
+        TemplateFile *f = template_get(e, n);
+        if (f) {
+            f->permanent = true;
+            r = EXIT_SUCCESS;
         }
 
         template_unlock(e);

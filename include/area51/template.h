@@ -26,17 +26,19 @@ extern "C" {
 
     extern TemplateEngine *template_init(char *);
 
-    extern void template_clearPermanent(TemplateEngine *, TemplateFile *);
-    extern void template_setPermanent(TemplateEngine *, TemplateFile *);
+    extern void template_clearPermanent(TemplateFile *);
+    extern void template_setPermanent(TemplateFile *);
     extern int template_loadPermanent(TemplateEngine *, char *);
 
     TemplateFile *template_new(void *, size_t, void (*)(void *));
     extern TemplateFile *template_get(TemplateEngine *, char *);
-    extern void template_free(TemplateEngine *, TemplateFile *);
+    extern void template_free(TemplateFile *);
 
     extern int template_appendCharbuffer(CharBuffer *, TemplateFile *);
 
     extern WEBSERVER_HANDLER *template_addHandler(WEBSERVER *, TemplateEngine *);
+    extern WEBSERVER_HANDLER *template_addHandler_r(WEBSERVER *, char *, TemplateEngine *);
+    extern int template_respondTemplate(WEBSERVER_REQUEST *, TemplateFile *);
 
 #ifdef __cplusplus
 }

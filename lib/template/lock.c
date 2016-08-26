@@ -8,9 +8,9 @@
 #include "template-int.h"
 
 int template_lock(TemplateEngine *e) {
-    return pthread_mutex_lock(&e->mutex);
+    return e ? pthread_mutex_lock(&e->mutex) : EXIT_SUCCESS;
 }
 
 int template_unlock(TemplateEngine *e) {
-    pthread_mutex_unlock(&e->mutex);
+    return e ? pthread_mutex_unlock(&e->mutex) : EXIT_SUCCESS;
 }

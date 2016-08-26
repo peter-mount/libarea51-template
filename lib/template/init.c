@@ -17,9 +17,6 @@ TemplateEngine *template_init(char *base) {
     memset(e, 0, sizeof (struct TemplateEngine));
     e->baseDir = base;
 
-    if (verbose)
-        logconsole("template base %s", e->baseDir);
-
     pthread_mutex_init(&e->mutex, NULL);
 
     e->templates = hashmapCreate(100, hashmapStringHash, hashmapStringEquals);
