@@ -14,15 +14,19 @@ static void includeTemplate(TemplateRenderer *r, char *n) {
     if (!n || !n[0])
         return;
 
+    bool lookup = n[0] == '/';
     TemplateFile *f = NULL;
-    if (n[0] == '/')
+    if (lookup)
         f = r->lookup(n, r->ctx);
     else
         f = webserver_getRequestAttribute(r->request, n);
 
     if (f) {
         template_render_template(r, f);
-        template_free(f);
+
+        // If we used lookup to get it, free it
+        if (lookup)
+            template_free(f);
     }
 }
 
