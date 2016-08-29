@@ -19,11 +19,12 @@ void template_render_template(TemplateRenderer *r, TemplateFile *f) {
         // {{ but no }} so thats it, 
         if (e > s) {
             // Include any text up to insertion -2 as {{
-            if (s > 0)
+            int l = s - o - 2;
+            if (s > 1 && l > 0)
                 charbuffer_put(r->buffer, &((char *) f->buffer)[o], s - o - 2);
 
             // get the tag content
-            int l = e - s + 1;
+            l = e - s + 1;
             char tag[l];
             memset(tag, 0, l);
             memcpy(tag, &((char *) f->buffer)[s], l - 1);
@@ -44,7 +45,7 @@ void template_render_template(TemplateRenderer *r, TemplateFile *f) {
 CharBuffer * template_render(WEBSERVER_REQUEST *r, TemplateFile *(*lookup)(char *, void *), void *ctx, TemplateFile * f) {
     TemplateRenderer renderer;
     memset(&renderer, 0, sizeof (struct TemplateRenderer));
-    
+
     renderer.buffer = charbuffer_new();
     if (!renderer.buffer)
         return NULL;
