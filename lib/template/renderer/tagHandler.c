@@ -18,8 +18,15 @@ static void includeTemplate(TemplateRenderer *r, char *n) {
     TemplateFile *f = NULL;
     if (lookup)
         f = r->lookup(n, r->ctx);
-    else
-        f = webserver_getRequestAttribute(r->request, n);
+    else {
+        void *v = webserver_getRequestAttribute(r->request, n);
+        // If value starts with / then it's a template name, else a template
+        if (v && ((char *) v)[0] == '/') {
+            f = r->lookup((char *) v, r->ctx);
+            lookup = true;
+        } else
+            f = v;
+    }
 
     if (f) {
         template_render_template(r, f);
